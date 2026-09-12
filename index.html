@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Balance of Power</title>
 <style>
   :root{
@@ -18,6 +18,7 @@
   }
   *{box-sizing:border-box;}
   [hidden]{ display:none !important; }
+  html{ touch-action:manipulation; }
   body{
     background:var(--stage);
     color:var(--ink);
@@ -29,7 +30,10 @@
     min-height:100vh;
     padding:14px 16px calc(14px + env(safe-area-inset-bottom));
     gap:12px;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
   }
+  button, a{ touch-action:manipulation; }
   .presenter{ display:flex; flex-direction:column; align-items:center; gap:12px; width:100%; max-width:1280px; }
   /* ---------- stage / scaling ---------- */
   .stage-wrap{
@@ -96,28 +100,32 @@
   }
   .rule{ position:absolute; left:60px; right:60px; top:132px; height:2px; background:var(--line); }
   .bullets{
-    position:absolute; left:64px; top:150px; width:auto; margin:0; padding:0; list-style:none;
+    position:absolute; left:64px; top:146px; width:auto; margin:0; padding:0; list-style:none;
   }
   .bullets.narrow{ width:610px; }
   .bullets.wide{ width:1150px; }
   .bullets li{
-    position:relative; display:flex; align-items:flex-start; gap:14px;
-    margin-bottom:16px; font-size:19px; line-height:1.36; color:var(--ink);
+    position:relative; display:flex; align-items:flex-start; gap:16px;
+    margin-bottom:21px; font-size:23px; line-height:1.4; font-weight:500;
+    letter-spacing:.1px; color:var(--ink);
     opacity:0; transform:translateX(-10px);
-    transition:opacity .4s ease, transform .4s ease;
+    transition:opacity .45s ease, transform .45s ease;
+    transition-delay:calc(var(--i,0) * 70ms);
   }
   .bullets li.shown{ opacity:1; transform:none; }
-  @media (prefers-reduced-motion:reduce){ .bullets li{ transition:opacity .01s linear; transform:none; } }
+  @media (prefers-reduced-motion:reduce){ .bullets li{ transition:opacity .01s linear; transform:none; transition-delay:0s; } }
   .b-icon{
-    flex:none; width:38px; height:38px; border-radius:50%;
-    background:var(--ice-soft); border:1.5px solid var(--ice);
+    flex:none; width:44px; height:44px; border-radius:50%;
+    background:linear-gradient(155deg, var(--ice-soft), #ffffff);
+    border:1.5px solid var(--ice);
+    box-shadow:0 3px 9px rgba(30,39,97,.14), 0 0 0 1px rgba(255,255,255,.6) inset;
     display:flex; align-items:center; justify-content:center;
     margin-top:1px;
   }
-  .b-icon svg{ width:20px; height:20px; stroke:var(--navy); fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
-  .b-text{ flex:1; padding-top:6px; }
-  .bullets.wide .b-icon{ width:34px; height:34px; }
-  .bullets.wide .b-icon svg{ width:18px; height:18px; }
+  .b-icon svg{ width:23px; height:23px; stroke:var(--navy); fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+  .b-text{ flex:1; padding-top:9px; }
+  .bullets.wide .b-icon{ width:40px; height:40px; }
+  .bullets.wide .b-icon svg{ width:21px; height:21px; }
   .foot{
     position:absolute; left:118px; bottom:38px; right:300px; font-size:11px; color:var(--muted);
   }
@@ -132,14 +140,6 @@
   .nav-btn.prev{ left:56px; }
   .nav-btn.next{ right:56px; }
   .nav-btn[disabled]{ opacity:.25; cursor:default; }
-
-  .script-toggle{
-    position:absolute; left:50%; bottom:24px; transform:translateX(-50%);
-    padding:9px 20px; border-radius:20px; border:1.5px solid var(--gold-deep);
-    background:#fff; color:var(--gold-deep); font-weight:700; font-size:12.5px; cursor:pointer;
-    font-family:var(--sans);
-  }
-  .script-toggle:hover{ background:var(--gold); color:#fff; border-color:var(--gold); }
 
   /* ---------- title slide ---------- */
   .t-eyebrow{ position:absolute; left:70px; top:150px; color:var(--gold); font-weight:700; font-size:15px; letter-spacing:3px; font-family:var(--sans); }
@@ -219,38 +219,22 @@
   .step.last{ background:var(--gold); }
   .step-arrow{ font-size:20px; color:#AEB8DB; flex:none; }
 
-  /* ---------- script drawer ---------- */
-  .drawer-scrim{
-    position:fixed; inset:0; background:rgba(10,13,32,.5); opacity:0; pointer-events:none;
-    transition:opacity .25s ease; z-index:40;
+  /* ---------- fullscreen stage ---------- */
+  #viewport:fullscreen{
+    width:100vw; height:100vh; max-width:none; aspect-ratio:auto;
+    border-radius:0; box-shadow:none; background:#000;
   }
-  .drawer-scrim.open{ opacity:1; pointer-events:auto; }
-  .drawer{
-    position:fixed; left:0; right:0; bottom:0; max-height:62vh; background:#fff;
-    border-radius:16px 16px 0 0; box-shadow:0 -12px 40px rgba(0,0,0,.35);
-    transform:translateY(102%); transition:transform .35s cubic-bezier(.4,0,.2,1);
-    z-index:41; display:flex; flex-direction:column;
+  #viewport:-webkit-full-screen{
+    width:100vw; height:100vh; max-width:none; aspect-ratio:auto;
+    border-radius:0; box-shadow:none; background:#000;
   }
-  .drawer.open{ transform:translateY(0); }
-  .drawer-head{
-    display:flex; align-items:center; justify-content:space-between; padding:16px 22px;
-    border-bottom:1px solid var(--line); flex:none;
+  .fs-hint{
+    position:absolute; left:50%; bottom:28px; transform:translateX(-50%);
+    background:rgba(15,19,48,.85); color:#EAEDFB; font-size:12.5px; letter-spacing:.2px;
+    padding:9px 20px; border-radius:20px; white-space:nowrap; pointer-events:none;
+    opacity:0; transition:opacity .6s ease; z-index:5; font-family:var(--sans);
   }
-  .drawer-head strong{ font-family:var(--serif); font-size:16px; color:var(--ink); }
-  .drawer-close{
-    background:var(--card); border:none; width:32px; height:32px; border-radius:50%; cursor:pointer;
-    font-size:16px; color:var(--muted);
-  }
-  .drawer-close:hover{ background:var(--ice-soft); color:var(--navy); }
-  .drawer-body{ padding:20px 26px 28px; overflow-y:auto; }
-  .drawer-body p{
-    direction:rtl; text-align:right; font-family:var(--kurdish); font-size:17px; line-height:1.95;
-    color:var(--ink); margin:0 0 16px;
-  }
-  .drawer-body .note{
-    direction:ltr; text-align:left; font-family:var(--sans); font-size:12.5px; color:var(--muted);
-    font-style:italic; margin-top:6px;
-  }
+  .fs-hint.show{ opacity:1; }
 
   /* ---------- controls (below canvas) ---------- */
   .controls{
@@ -278,6 +262,7 @@
   .remote-link{
     background:transparent; color:var(--gold); border:1px solid var(--gold-deep); border-radius:20px;
     padding:6px 14px; font-size:12px; cursor:pointer; font-family:var(--sans);
+    display:inline-flex; align-items:center; gap:7px;
   }
   .remote-link:hover{ background:var(--gold); color:var(--navy-deep); }
   .link-box{
@@ -316,34 +301,46 @@
   .rm-dot.live{ background:#3FCB77; }
   .rm-dot.bad{ background:#E8626A; }
   .rm-header{
-    background:var(--navy); border:1px solid var(--navy-soft); border-radius:14px; padding:18px 20px;
+    background:linear-gradient(155deg, var(--navy), var(--navy-deep));
+    border:1px solid var(--navy-soft); border-radius:16px; padding:20px 20px 18px;
+    box-shadow:0 10px 26px rgba(5,7,26,.35);
   }
-  .rm-badge{ font-size:12px; font-weight:700; letter-spacing:.5px; color:var(--gold); margin-bottom:8px; }
-  .rm-title{ font-family:var(--serif); font-size:21px; line-height:1.28; color:#fff; }
-  .rm-sub{ font-size:13px; color:var(--ice); margin-top:6px; }
-  .rm-bullets{ display:flex; flex-direction:column; gap:6px; }
-  .rm-bnote{ font-size:11.5px; color:#8990C0; text-align:center; }
+  .rm-badge{ font-size:11.5px; font-weight:700; letter-spacing:1px; color:var(--gold); margin-bottom:9px; }
+  .rm-title{ font-family:var(--serif); font-size:22px; line-height:1.3; color:#fff; text-wrap:balance; }
+  .rm-sub{ font-size:13px; color:var(--ice); margin-top:7px; }
+  .rm-progress{ height:5px; border-radius:3px; background:#171C4A; overflow:hidden; }
+  .rm-progress-fill{ height:100%; background:var(--gold); border-radius:3px; transition:width .4s ease; }
+  .rm-bullets{ display:flex; flex-direction:column; gap:8px; }
+  .rm-bnote{ font-size:11.5px; color:#8990C0; text-align:center; padding:14px 0; }
   .rm-b{
-    display:flex; align-items:center; gap:10px; background:#171C4A; border:1px solid #262C68;
-    border-radius:10px; padding:9px 12px; font-size:13px; color:#8990C0; transition:background .2s, color .2s, border-color .2s;
+    display:flex; align-items:center; gap:12px; background:#171C4A; border:1px solid #262C68;
+    border-radius:12px; padding:12px 14px; font-size:14.5px; font-weight:500; color:#9AA2CC;
+    transition:background .25s ease, color .25s ease, border-color .25s ease, transform .25s ease;
   }
   .rm-b.shown{ background:#232C74; color:#fff; border-color:var(--navy-soft); }
-  .rm-b .rm-b-ico{ flex:none; width:20px; height:20px; opacity:.6; }
-  .rm-b.shown .rm-b-ico{ opacity:1; }
-  .rm-b-ico svg{ width:20px; height:20px; display:block; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+  .rm-b .rm-b-ico{
+    flex:none; width:30px; height:30px; border-radius:50%; background:#1F2660;
+    display:flex; align-items:center; justify-content:center; transition:background .25s ease;
+  }
+  .rm-b.shown .rm-b-ico{ background:var(--gold); }
+  .rm-b.shown .rm-b-ico svg{ stroke:var(--navy-deep); }
+  .rm-b-ico svg{ width:16px; height:16px; display:block; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
   .rm-mainbtns{ display:flex; gap:10px; }
   .rm-nav{
-    flex:1; background:#1B2160; color:#fff; border:1px solid #2A3170; border-radius:14px;
+    flex:1; background:#1B2160; color:#fff; border:1px solid #2A3170; border-radius:16px;
     padding:22px 10px; font-size:17px; font-weight:700; cursor:pointer; font-family:var(--sans);
+    transition:transform .15s ease, background .15s ease;
   }
-  .rm-nav:active{ transform:scale(.97); }
-  .rm-nav.primary{ background:var(--gold); color:var(--navy-deep); border-color:var(--gold); }
-  .rm-nav[disabled]{ opacity:.35; }
+  .rm-nav:active{ transform:scale(.96); }
+  .rm-nav.primary{ background:var(--gold); color:var(--navy-deep); border-color:var(--gold); box-shadow:0 8px 20px rgba(232,163,61,.32); }
+  .rm-nav[disabled]{ opacity:.3; box-shadow:none; }
   .rm-secondary{ display:flex; gap:10px; }
   .rm-secondary button{
     flex:1; background:transparent; color:var(--ice); border:1px solid var(--navy-soft); border-radius:12px;
     padding:12px 8px; font-size:13px; cursor:pointer; font-family:var(--sans);
+    transition:background .15s ease, transform .15s ease;
   }
+  .rm-secondary button:active{ transform:scale(.96); background:rgba(255,255,255,.06); }
   .rm-link{
     background:transparent; border:none; color:var(--gold); font-size:13.5px; padding:10px 0; cursor:pointer;
     font-family:var(--sans); text-align:center;
@@ -383,8 +380,9 @@
   /* ---------- remote: join / pairing-code entry screen ---------- */
   .rm-join{ display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:14px; padding-top:8vh; }
   .rm-join-card{
-    width:100%; background:var(--navy); border:1px solid var(--navy-soft); border-radius:16px;
-    padding:26px 22px; text-align:center;
+    width:100%; background:linear-gradient(155deg, var(--navy), var(--navy-deep));
+    border:1px solid var(--navy-soft); border-radius:18px;
+    padding:30px 24px; text-align:center; box-shadow:0 14px 34px rgba(5,7,26,.4);
   }
   .rm-join-title{ font-family:var(--serif); font-size:20px; color:#fff; margin-bottom:6px; }
   .rm-join-sub{ font-size:12.5px; color:var(--ice); margin-bottom:18px; line-height:1.5; }
@@ -441,11 +439,12 @@
   <div class="stage-wrap">
     <div class="viewport" id="viewport">
       <div class="canvas" id="canvas"></div>
+      <div class="fs-hint" id="fsHint">← → navigate/build &nbsp;·&nbsp; V/H bullets &nbsp;·&nbsp; A agenda &nbsp;·&nbsp; Esc exit</div>
     </div>
     <div class="reveal-bar">
       <button class="reveal-btn" id="btnShowAll" title="Show all bullets (V)">☰ Show all bullets</button>
       <button class="reveal-btn" id="btnHideAll" title="Hide bullets (H)">— Hide bullets</button>
-      <button class="remote-link" id="btnRemoteLink" title="Control from your phone">📱 Remote control</button>
+      <button class="remote-link" id="btnRemoteLink" title="Control from your phone"><span class="rm-dot" id="btnRemoteDot"></span>📱 Remote control</button>
     </div>
     <div class="link-box" id="linkBox">
       <div class="pair-row">Pairing code <button class="pair-refresh" id="btnNewCode" title="Generate a new code">🔄 New code</button></div>
@@ -460,17 +459,8 @@
       <button class="ctl-btn" id="btnNext" title="Next (→)"><span class="lbl">Next</span> ▶</button>
       <button class="ctl-btn" id="btnAgenda" title="Agenda (A)">☰ <span class="lbl">Agenda</span></button>
       <button class="ctl-btn" id="btnFull" title="Fullscreen (F)">⛶ <span class="lbl">Full screen</span></button>
-      <span class="kbd-hint">← → navigate/build · V/H bullets · S script · F fullscreen</span>
+      <span class="kbd-hint">← → navigate/build · V/H bullets · A agenda · F fullscreen</span>
     </div>
-  </div>
-
-  <div class="drawer-scrim" id="scrim"></div>
-  <div class="drawer" id="drawer">
-    <div class="drawer-head">
-      <strong id="drawerTitle">Speaker script</strong>
-      <button class="drawer-close" id="drawerClose">✕</button>
-    </div>
-    <div class="drawer-body" id="drawerBody"></div>
   </div>
 </div>
 
@@ -492,6 +482,7 @@
       <div class="rm-title" id="rmTitle">—</div>
       <div class="rm-sub" id="rmSub"></div>
     </div>
+    <div class="rm-progress"><div class="rm-progress-fill" id="rmProgressFill"></div></div>
     <div class="rm-bullets" id="rmBullets"></div>
     <div class="rm-mainbtns">
       <button class="rm-nav" id="rmPrev">◀ Back</button>
@@ -748,8 +739,8 @@ function renderSlide(slide, idx){
   }
   else { // content
     var d = slide.data;
-    var bullets = d.bullets.map(function(b){
-      return '<li><span class="b-icon">'+ICONS[pickIcon(b)]+'</span><span class="b-text">'+esc(b)+'</span></li>';
+    var bullets = d.bullets.map(function(b,bi){
+      return '<li style="--i:'+bi+'"><span class="b-icon">'+ICONS[pickIcon(b)]+'</span><span class="b-text">'+esc(b)+'</span></li>';
     }).join("");
     var hasVisual = !!d.visual;
     var visualHTML = "";
@@ -770,7 +761,6 @@ function renderSlide(slide, idx){
       '<ul class="bullets '+(hasVisual?"narrow":"wide")+'">'+bullets+'</ul>'+
       visualHTML+
       '<div class="foot">Module 3 — Student-Centred Approach &nbsp;·&nbsp; Slide '+slide.contentNum+' of 12</div>'+
-      (d.script ? '<button class="script-toggle" data-script="'+idx+'">📝 Show Script (Sorani)</button>' : '')+
       '<button class="nav-btn prev" data-nav="prev">◀</button>'+
       '<button class="nav-btn next" data-nav="next">▶</button>'+
       '<div class="progress-track"><div class="progress-fill" style="width:'+pct+'%"></div></div>';
@@ -813,7 +803,6 @@ function renderPresenterState(){
   });
   document.getElementById("btnPrev").disabled = (state.idx===0 && state.revealed===0);
   document.getElementById("btnNext").disabled = (state.idx===TOTAL-1 && state.revealed>=bulletsCountFor(state.idx));
-  closeDrawer();
 
   var lis = active.querySelectorAll(".bullets li");
   lis.forEach(function(li,i){ li.classList.toggle("shown", i < state.revealed); });
@@ -846,6 +835,7 @@ function renderRemoteState(){
 
   document.getElementById("rmTitle").textContent = title;
   document.getElementById("rmSub").textContent = sub;
+  document.getElementById("rmProgressFill").style.width = Math.round((state.idx/(TOTAL-1))*100)+"%";
 
   var bulletsEl = document.getElementById("rmBullets");
   if(bullets.length===0){
@@ -900,8 +890,6 @@ canvas.addEventListener("click", function(e){
   if(spEl){ userGoto(firstSlideOfSpeaker(Number(spEl.dataset.goSpeaker))); return; }
   var navEl = e.target.closest("[data-nav]");
   if(navEl){ navEl.dataset.nav==="next" ? nextAction() : prevAction(); return; }
-  var scriptEl = e.target.closest("[data-script]");
-  if(scriptEl){ openDrawer(Number(scriptEl.dataset.script)); return; }
 });
 
 document.getElementById("btnPrev").addEventListener("click", prevAction);
@@ -909,32 +897,19 @@ document.getElementById("btnNext").addEventListener("click", nextAction);
 document.getElementById("btnAgenda").addEventListener("click", function(){ userGoto(AGENDA_IDX); });
 document.getElementById("btnShowAll").addEventListener("click", showAllBullets);
 document.getElementById("btnHideAll").addEventListener("click", hideAllBullets);
+var fsHint = document.getElementById("fsHint");
+var fsHintTimer = null;
+function showFullscreenHint(){
+  if(!fsHint) return;
+  fsHint.classList.add("show");
+  clearTimeout(fsHintTimer);
+  fsHintTimer = setTimeout(function(){ fsHint.classList.remove("show"); }, 4200);
+}
 document.getElementById("btnFull").addEventListener("click", function(){
-  var el = document.getElementById("viewport").parentElement;
+  var el = document.getElementById("viewport");
   if(!document.fullscreenElement){ (el.requestFullscreen||function(){}).call(el); }
   else { document.exitFullscreen(); }
 });
-
-// ---- script drawer ----
-var scrim = document.getElementById("scrim");
-var drawer = document.getElementById("drawer");
-var drawerBody = document.getElementById("drawerBody");
-var drawerTitle = document.getElementById("drawerTitle");
-
-function openDrawer(idx){
-  var d = SLIDES[idx].data;
-  drawerTitle.textContent = "Speaker "+d.sp+" — Slide "+d.n+" script";
-  var html = "";
-  d.script.split("\n\n").forEach(function(p){ html += "<p>"+esc(p)+"</p>"; });
-  if(d.transition){ html += '<p style="color:var(--gold-deep);">'+esc(d.transition)+"</p>"; }
-  if(d.closing){ html += '<p style="color:var(--gold-deep);">'+esc(d.closing)+"</p>"; }
-  html += '<div class="note">Sorani Kurdish · natural spoken register for classroom delivery</div>';
-  drawerBody.innerHTML = html;
-  scrim.classList.add("open"); drawer.classList.add("open");
-}
-function closeDrawer(){ scrim.classList.remove("open"); drawer.classList.remove("open"); }
-document.getElementById("drawerClose").addEventListener("click", closeDrawer);
-scrim.addEventListener("click", closeDrawer);
 
 // ---- keyboard (presenter only) ----
 document.addEventListener("keydown", function(e){
@@ -947,11 +922,6 @@ document.addEventListener("keydown", function(e){
   else if(e.key==="v" || e.key==="V"){ showAllBullets(); }
   else if(e.key==="h" || e.key==="H"){ hideAllBullets(); }
   else if(e.key==="f" || e.key==="F"){ document.getElementById("btnFull").click(); }
-  else if(e.key==="s" || e.key==="S"){
-    var d = SLIDES[state.idx].data;
-    if(d && d.script) openDrawer(state.idx); else closeDrawer();
-  }
-  else if(e.key==="Escape"){ closeDrawer(); }
 });
 
 // ---- touch swipe + responsive scaling (presenter only) ----
@@ -967,10 +937,20 @@ if(!isRemote){
   }, {passive:true});
 
   function rescale(){
-    var w = viewport.clientWidth;
-    canvas.style.transform = "scale("+(w/1280)+")";
+    var w = viewport.clientWidth, h = viewport.clientHeight;
+    var scale = Math.min(w/1280, h/720);
+    var offX = (w - 1280*scale)/2;
+    var offY = (h - 720*scale)/2;
+    canvas.style.transform = "translate("+offX+"px,"+offY+"px) scale("+scale+")";
   }
   window.addEventListener("resize", rescale);
+  document.addEventListener("fullscreenchange", function(){
+    var isFull = !!document.fullscreenElement;
+    if(isFull){ showFullscreenHint(); }
+    else { fsHint.classList.remove("show"); clearTimeout(fsHintTimer); }
+    requestAnimationFrame(rescale);
+    setTimeout(rescale, 150);
+  });
   rescale();
 }
 
@@ -1101,10 +1081,21 @@ function makeRoom(){
   try{ localStorage.setItem(ROOM_KEY, code); }catch(e){}
   return code;
 }
+var pairAutoCollapsed = false;
 function setPairStatus(kind, msg){
-  var dot = document.getElementById("pairDot");
-  dot.className = "rm-dot" + (kind==="connected" ? " live" : kind==="error" ? " bad" : "");
+  var cls = "rm-dot" + (kind==="connected" ? " live" : kind==="error" ? " bad" : "");
+  document.getElementById("pairDot").className = cls;
   document.getElementById("pairStatusText").textContent = msg;
+  var btnDot = document.getElementById("btnRemoteDot");
+  if(btnDot) btnDot.className = cls;
+  // the pairing code only matters for the few seconds it takes to read it out
+  // to whoever's connecting — once paired, tuck the panel away automatically.
+  if(kind==="connected" && !pairAutoCollapsed){
+    pairAutoCollapsed = true;
+    setTimeout(function(){
+      document.getElementById("linkBox").classList.remove("open");
+    }, 2600);
+  }
 }
 function startPresenterPairing(){
   var code = loadOrMakeRoom();
@@ -1114,6 +1105,8 @@ function startPresenterPairing(){
   document.getElementById("btnNewCode").addEventListener("click", function(){
     var fresh = makeRoom();
     document.getElementById("pairCode").textContent = fresh;
+    document.getElementById("linkBox").classList.add("open");
+    pairAutoCollapsed = false;
     connectRoom(fresh, setPairStatus);
   });
 }
